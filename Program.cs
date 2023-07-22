@@ -1,4 +1,5 @@
 using Identity.Extensions;
+using Identity.Factory;
 using Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,11 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
                     options.Password.RequireUppercase = true;
                 })
                 .AddEntityFrameworkStores<ApplicationContext>();
+
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+                options.LoginPath = "/Account/Login");
 
 builder.Services.AddAutoMapper(typeof(Program));
 
@@ -36,6 +42,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
