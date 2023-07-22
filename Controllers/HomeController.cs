@@ -1,5 +1,6 @@
 ﻿using Identity.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace Identity.Controllers
@@ -7,10 +8,12 @@ namespace Identity.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ApplicationContext context, ILogger<HomeController> logger)
         {
             _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -18,9 +21,10 @@ namespace Identity.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> EmployeesAsync()
         {
-            return View();
+            var employees = await _context.Employees.ToListAsync();
+            return View(employees);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

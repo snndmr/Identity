@@ -1,6 +1,13 @@
+using Identity.Extensions;
+using Identity.Models;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDbContext<ApplicationContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -23,5 +30,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MigrateDatabase().Run();
 
 app.Run();
