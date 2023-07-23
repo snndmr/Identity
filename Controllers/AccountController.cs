@@ -52,9 +52,42 @@ namespace Identity.Controllers
                 return View(model);
             }
 
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var callback = Url.Action(nameof(ConfirmEmail), "Account", new { token, user.Email }, Request.Scheme);
+
+            var message = new Message(new EmailAddress[] { new() { Address = user.Email } }, "Confirmation Email", callback, null);
+            await _emailSender.SendEmailAsync(message);
+
             await _userManager.AddToRoleAsync(user, "Guest");
 
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            return RedirectToAction(nameof(SuccessRegistration));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return View(nameof(Error));
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            return View(result.Succeeded ? nameof(ConfirmEmail) : nameof(Error));
+        }
+
+        [HttpGet]
+        public IActionResult SuccessRegistration()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult Error()
+        {
+            return View();
         }
 
         [HttpGet]
@@ -90,7 +123,7 @@ namespace Identity.Controllers
                 return RedirectToLocal(returnUrl);
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid UserName or Password");
+            ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
             return View();
         }
 
@@ -110,7 +143,7 @@ namespace Identity.Controllers
                 return RedirectToLocal(returnUrl);
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid UserName or Password");
+            ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
             return View();
         }
 
@@ -159,7 +192,7 @@ namespace Identity.Controllers
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var callback = Url.Action(nameof(ResetPassword), "Account", new ResetPasswordModel { Token = token, Email = user.Email }, Request.Scheme);
 
-            var message = new Message(new EmailAddress[] { new() { Address = user.Email } }, "Reset password token", callback, null);
+            var message = new Message(new EmailAddress[] { new() { Address = user.Email } }, "Reset Password", callback, null);
             await _emailSender.SendEmailAsync(message);
 
             return RedirectToAction(nameof(ForgotPasswordConfirmation));

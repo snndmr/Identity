@@ -1,4 +1,5 @@
 using EmailService;
+using Identity.CustomTokenProviders;
 using Identity.Extensions;
 using Identity.Factory;
 using Identity.Models;
@@ -17,12 +18,18 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
                     options.Password.RequireDigit = true;
                     options.Password.RequireUppercase = true;
                     options.User.RequireUniqueEmail = true;
+                    options.SignIn.RequireConfirmedEmail = true;
+                    options.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
                 })
                 .AddEntityFrameworkStores<ApplicationContext>()
-                .AddDefaultTokenProviders();
+                .AddDefaultTokenProviders()
+                .AddTokenProvider<EmailConfirmationTokenProvider<User>>("emailconfirmation");
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
                 options.TokenLifespan = TimeSpan.FromMinutes(15));
+
+builder.Services.Configure<EmailConfirmationTokenProviderOptions>(options =>
+                options.TokenLifespan = TimeSpan.FromDays(3));
 
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
 
