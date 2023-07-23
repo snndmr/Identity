@@ -8,12 +8,10 @@ namespace Identity.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly ApplicationContext _context;
 
-        public HomeController(ApplicationContext context, ILogger<HomeController> logger)
+        public HomeController(ApplicationContext context)
         {
-            _logger = logger;
             _context = context;
         }
 

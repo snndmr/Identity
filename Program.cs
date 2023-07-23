@@ -1,3 +1,4 @@
+using EmailService;
 using Identity.Extensions;
 using Identity.Factory;
 using Identity.Models;
@@ -15,8 +16,13 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
                     options.Password.RequiredLength = 10;
                     options.Password.RequireDigit = true;
                     options.Password.RequireUppercase = true;
+                    options.User.RequireUniqueEmail = true;
                 })
-                .AddEntityFrameworkStores<ApplicationContext>();
+                .AddEntityFrameworkStores<ApplicationContext>()
+                .AddDefaultTokenProviders();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+                options.TokenLifespan = TimeSpan.FromMinutes(15));
 
 builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, CustomClaimsFactory>();
 
@@ -24,6 +30,10 @@ builder.Services.ConfigureApplicationCookie(options =>
                 options.LoginPath = "/Account/Login");
 
 builder.Services.AddAutoMapper(typeof(Program));
+
+builder.Services.AddSingleton(builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>());
+
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 builder.Services.AddControllersWithViews();
 
