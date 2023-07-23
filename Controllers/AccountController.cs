@@ -136,11 +136,23 @@ namespace Identity.Controllers
                 return View(model);
             }
 
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
                 return RedirectToLocal(returnUrl);
+            }
+
+            if (result.IsLockedOut)
+            {
+                var callback = Url.Action(nameof(ForgotPassword), "Account", new ResetPasswordModel { }, Request.Scheme);
+                var content = string.Format("Your account is locked out, to reset your password, please click this link: {0}", callback);
+
+                var message = new Message(new EmailAddress[] { new() { Address = model.Email } }, "Locked out account", content, null);
+                await _emailSender.SendEmailAsync(message);
+
+                ModelState.AddModelError(string.Empty, "The account is locked out");
+                return View();
             }
 
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
