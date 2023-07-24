@@ -143,6 +143,11 @@ namespace Identity.Controllers
                 return RedirectToLocal(returnUrl);
             }
 
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToAction(nameof(LoginTwoFactor), new { model.Email, model.RememberMe, returnUrl });
+            }
+
             if (result.IsLockedOut)
             {
                 var callback = Url.Action(nameof(ForgotPassword), "Account", new ResetPasswordModel { }, Request.Scheme);
@@ -156,6 +161,59 @@ namespace Identity.Controllers
             }
 
             ModelState.AddModelError(string.Empty, "Invalid Login Attempt");
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoginTwoFactor(string email, bool rememberMe, string returnUrl = null)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return View(nameof(Error));
+            }
+
+            var providers = await _userManager.GetValidTwoFactorProvidersAsync(user);
+
+            if (!providers.Contains("Email"))
+            {
+                return View(nameof(Error));
+            }
+
+            var token = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+
+            var message = new Message(new EmailAddress[] { new() { Address = user.Email } }, "Reset Password", token, null);
+            await _emailSender.SendEmailAsync(message);
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LoginTwoFactor(LoginTwoFactorModel model, string returnUrl = null)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Error));
+            }
+
+            var result = await _signInManager.TwoFactorSignInAsync("Email", model.TwoFactorCode, model.RememberMe, rememberClient: false);
+
+            if (result.Succeeded)
+            {
+                return RedirectToLocal(returnUrl);
+            }
+
+            ModelState.AddModelError(string.Empty, result.IsLockedOut ? "The account is locked out." : "Invalid login attempt.");
+
             return View();
         }
 
