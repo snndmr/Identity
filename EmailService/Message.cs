@@ -1,6 +1,6 @@
 ﻿using MimeKit;
 
-namespace EmailService
+namespace Identity.EmailService
 {
     public class Message
     {

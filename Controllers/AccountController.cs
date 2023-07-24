@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using EmailService;
+using Identity.EmailService;
 using Identity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +22,14 @@ namespace Identity.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
         }
+
+        [HttpGet]
+        public IActionResult Error()
+        {
+            return View();
+        }
+
+        #region Register
 
         [HttpGet]
         public IActionResult Register()
@@ -84,11 +92,9 @@ namespace Identity.Controllers
             return View();
         }
 
-        [HttpGet]
-        public IActionResult Error()
-        {
-            return View();
-        }
+        #endregion
+
+        #region Login / Logout
 
         [HttpGet]
         public IActionResult Login(string returnUrl = null)
@@ -222,6 +228,7 @@ namespace Identity.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
@@ -236,6 +243,10 @@ namespace Identity.Controllers
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
         }
+
+        #endregion
+
+        #region Forgot / Reset Password
 
         [HttpGet]
         public IActionResult ForgotPassword()
@@ -318,5 +329,7 @@ namespace Identity.Controllers
         {
             return View();
         }
+
+        #endregion        
     }
 }

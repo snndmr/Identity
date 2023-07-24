@@ -24,6 +24,7 @@ namespace Identity.Controllers
         public async Task<IActionResult> EmployeesAsync()
         {
             var employees = await _context.Employees.ToListAsync();
+
             return View(employees);
         }
 

@@ -1,7 +1,7 @@
 ﻿using MailKit.Net.Smtp;
 using MimeKit;
 
-namespace EmailService
+namespace Identity.EmailService
 {
     public class EmailSender : IEmailSender
     {

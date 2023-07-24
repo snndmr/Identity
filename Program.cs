@@ -1,6 +1,6 @@
-using EmailService;
 using Identity.CustomTokenProviders;
 using Identity.CustomValdiators;
+using Identity.EmailService;
 using Identity.Extensions;
 using Identity.Factory;
 using Identity.Models;

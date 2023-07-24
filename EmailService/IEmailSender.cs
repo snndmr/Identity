@@ -1,4 +1,4 @@
-﻿namespace EmailService
+﻿namespace Identity.EmailService
 {
     public interface IEmailSender
     {

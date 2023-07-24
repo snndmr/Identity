@@ -45,19 +45,11 @@
                     @Html.DisplayFor(modelItem => item.Position)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                    @Html.ActionLink("Edit", "Edit", new {  }) |
+                    @Html.ActionLink("Details", "Details", new {  }) |
+                    @Html.ActionLink("Delete", "Delete", new {  })
                 </td>
             </tr>
         }
     </tbody>
 </table>
-
-<h2>Claim details</h2>
-<ul>
-    @foreach (var claim in User.Claims)
-    {
-        <li><strong>@claim.Type</strong>: @claim.Value</li>
-    }
-</ul>
